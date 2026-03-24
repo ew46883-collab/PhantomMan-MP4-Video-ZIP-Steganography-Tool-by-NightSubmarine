@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stego MP4 Tool - Pro Edition</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --success: #28a745;
+            --bg: #f8f9fa;
+            --panel: #ffffff;
+            --text: #333;
+            --border: #dee2e6;
+            --console-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        /* 通用行布局 */
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .config-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .label-fixed {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            width: 110px;
+        }
+
+        /* 输入组合框：输入框 + 按钮 */
+        .input-group {
+            display: flex;
+            flex-grow: 1;
+            gap: 5px;
+        }
+
+        input[type="text"], select, textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"] { flex-grow: 1; }
+
+        input:focus, textarea:focus { border-color: var(--primary); }
+
+        /* 小图标按钮样式 */
+        .btn-icon {
+            padding: 8px 12px;
+            background: #f1f3f5;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .btn-icon:hover { background: #e9ecef; }
+
+        /* 主动作按钮 */
+        button.btn-main {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button.btn-main:hover { background: #357abd; transform: translateY(-1px); }
+        button.btn-success { background: var(--success); }
+        button.btn-success:hover { background: #218838; }
+
+        /* 模块标题 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 10px 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-item { font-size: 12px; display: flex; align-items: center; gap: 5px; color: #666; cursor: pointer; }
+
+        textarea { width: 100%; box-sizing: border-box; line-height: 1.5; }
+
+        /* 进度条 */
+        .progress-wrapper { height: 10px; background: #e9ecef; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.3s; }
+
+        /* 控制台 */
+        .console-box {
+            background: var(--console-bg);
+            color: #00ff41;
+            padding: 15px;
+            border-radius: 8px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            border: 1px solid #333;
+        }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 25px 0; }
+
+        /* 自定义右键菜单样式 */
+        .custom-context-menu {
+            display: none;
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 120px;
+            border-radius: 4px;
+            padding: 5px 0;
+        }
+
+        .custom-context-menu div {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .custom-context-menu div:hover {
+            background-color: #4A90E2;
+            color: white;
+        }
+
+        /* 分割线 */
+        .custom-context-menu hr {
+            margin: 4px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+<div id="context-menu" class="custom-context-menu">
+    <div onclick="menuAction('cut')">Cut</div>
+    <div onclick="menuAction('copy')">Copy</div>
+    <div onclick="menuAction('paste')">Paste</div>
+    <hr>
+    <div onclick="menuAction('selectAll')">Select All</div>
+</div>
+<div class="container">
+    <div class="config-header">
+        <div class="row">
+            <label id="lbl-lang" class="label-fixed">Language:</label>
+            <select id="lang-selector" onchange="changeLanguage()" style="width: 150px;">
+                <option value="en" selected>English</option>
+                <option value="zh-cn">简体中文</option>
+                <option value="zh-tw">繁體中文</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="ja">日本語</option>
+                <option value="ru">Русский</option>
+            </select>
+
+            <label id="lbl-temp" class="label-fixed" style="width: auto; margin-left: 20px;">Temp Dir:</label>
+            <div class="input-group">
+                <input type="text" id="temp-dir-input" value="./.temp">
+                <button class="btn-icon" onclick="pickFolder('temp-dir-input')">📁</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <label id="lbl-shell" class="label-fixed">Shell Video:</label>
+        <div class="input-group">
+            <input type="text" id="shell-video-input" placeholder="Select or paste MP4 path...">
+            <button class="btn-icon" onclick="pickFile('shell-video-input')">📁</button>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="section-header">
+        <div class="section-title"><span>📥</span> <span id="hdr-inject">Batch Injection</span></div>
+        <label class="option-item">
+            <input type="checkbox" id="chk-include-parent">
+            <span id="opt-include-parent">Include Parent Folder</span>
+        </label>
+    </div>
+
+    <div class="row">
+        <label id="lbl-out-inject" class="label-fixed">Output Dir:</label>
+        <div class="input-group">
+            <input type="text" id="output-inject-input" value="./output">
+            <button class="btn-icon" onclick="pickFolder('output-inject-input')">📁</button>
+        </div>
+    </div>
+
+    <textarea id="batch-inject-input" rows="4" placeholder="C:\path\to\secret.zip&#10;D:\path\to\folder"></textarea>
+
+    <div style="text-align: right; margin-top: 10px;">
+        <button class="btn-main btn-success" id="btn-start-inject" onclick="startBatchInjection()">Start Injection</button>
+    </div>
+
+    <div class="progress-wrapper"><div class="progress-bar" id="progress-bar"></div></div>
+
+    <hr>
+
+    <div class="section-header">
+        <div class="section-title"><span>📤</span> <span id="hdr-extract">Batch Extraction</span></div>
+    </div>
+
+    <div class="row">
+        <label id="lbl-out-extract" class="label-fixed">Extract Dir:</label>
+        <div class="input-group">
+            <input type="text" id="output-extract-input" value="./decrypt">
+            <button class="btn-icon" onclick="pickFolder('output-extract-input')">📁</button>
+        </div>
+    </div>
+
+    <textarea id="batch-extract-input" rows="3" placeholder="E:\stego_videos\video1.mp4"></textarea>
+
+    <div style="text-align: right; margin-top: 10px;">
+        <button class="btn-main" id="btn-start-extract" onclick="startBatchExtraction()">Start Extraction</button>
+    </div>
+
+    <div class="section-header" style="margin-top: 20px;">
+        <div class="section-title"><span>💻</span> <span id="hdr-console">Console Log</span></div>
+        <button onclick="clearLog()" style="padding: 4px 8px; font-size: 11px; background: #666; color: white; border:none; border-radius:4px;">Clear</button>
+    </div>
+    <div class="console-box" id="console"></div>
+</div>
+
+<script>
+    const i18n = {
+        "en": {
+            "lbl-lang": "🌏Language:", "lbl-temp": "Temp Dir:", "lbl-shell": "Shell Video:",
+            "lbl-out-inject": "Output Dir:", "lbl-out-extract": "Extract Dir:",
+            "hdr-inject": "Batch Injection", "opt-include-parent": "Include Parent Folder",
+            "btn-start-inject": "Start Injection", "hdr-extract": "Batch Extraction",
+            "btn-start-extract": "Start Extraction", "hdr-console": "Console Log"
+        },
+        "zh-cn": {
+            "lbl-lang": "🌏语言:", "lbl-temp": "缓存目录:", "lbl-shell": "外壳视频:",
+            "lbl-out-inject": "输出目录:", "lbl-out-extract": "提取目录:",
+            "hdr-inject": "批量隐写植入", "opt-include-parent": "ZIP 包含父目录",
+            "btn-start-inject": "开始植入任务", "hdr-extract": "批量提取解密",
+            "btn-start-extract": "开始提取任务", "hdr-console": "运行日志"
+        },
+        // ... (其他语言繁体、法、西、日、俄逻辑同上，为节省空间建议按此格式补齐)
+        "zh-tw": { "lbl-lang": "🌏語言:", "lbl-temp": "暫存目錄:", "lbl-shell": "外殼影片:", "lbl-out-inject": "輸出目錄:", "lbl-out-extract": "提取目錄:", "hdr-inject": "批量隱寫植入", "opt-include-parent": "ZIP 包含父目錄", "btn-start-inject": "開始植入任務", "hdr-extract": "批量提取解密", "btn-start-extract": "開始提取任務", "hdr-console": "執行日誌" },
+        "fr": { "lbl-lang": "🌏Langue:", "lbl-temp": "Dossier Temp:", "lbl-shell": "Vidéo:", "lbl-out-inject": "Sortie:", "lbl-out-extract": "Extraire:", "hdr-inject": "Injection", "opt-include-parent": "Inclure dossier", "btn-start-inject": "Démarrer", "hdr-extract": "Extraction", "btn-start-extract": "Extraire", "hdr-console": "Journal" },
+        "es": { "lbl-lang": "🌏Idioma:", "lbl-temp": "Dir Temp:", "lbl-shell": "Video:", "lbl-out-inject": "Salida:", "lbl-out-extract": "Extraer:", "hdr-inject": "Inyección", "opt-include-parent": "Incluir carpeta", "btn-start-inject": "Iniciar", "hdr-extract": "Extracción", "btn-start-extract": "Extraer", "hdr-console": "Consola" },
+        "ja": { "lbl-lang": "🌏言語:", "lbl-temp": "作業用:", "lbl-shell": "ビデオ:", "lbl-out-inject": "出力先:", "lbl-out-extract": "展開先:", "hdr-inject": "バッチ注入", "opt-include-parent": "親フォルダを含める", "btn-start-inject": "開始", "hdr-extract": "バッチ抽出", "btn-start-extract": "開始", "hdr-console": "ログ" },
+        "ru": { "lbl-lang": "🌏Язык:", "lbl-temp": "Врем. папка:", "lbl-shell": "Видео:", "lbl-out-inject": "Выход:", "lbl-out-extract": "Извлечь:", "hdr-inject": "Внедрение", "opt-include-parent": "Включить папку", "btn-start-inject": "Запустить", "hdr-extract": "Извлечение", "btn-start-extract": "Запустить", "hdr-console": "Лог" }
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById("lang-selector").value;
+        const dict = i18n[lang];
+        for (const [id, text] of Object.entries(dict)) {
+            const el = document.getElementById(id);
+            if (el) {
+                if(el.tagName === 'BUTTON' || el.tagName === 'INPUT') el.value = text;
+                else el.innerText = text;
+            }
+        }
+    }
+
+    // 调用 Python 选择文件
+    async function pickFile(inputId) {
+        if (window.pywebview && window.pywebview.api) {
+            const path = await pywebview.api.select_file();
+            if (path) document.getElementById(inputId).value = path;
+        }
+    }
+
+    // 调用 Python 选择文件夹
+    async function pickFolder(inputId) {
+        if (window.pywebview && window.pywebview.api) {
+            const path = await pywebview.api.select_folder();
+            if (path) document.getElementById(inputId).value = path;
+        }
+    }
+
+    function addLog(msg) {
+        const consoleEl = document.getElementById("console");
+        consoleEl.innerHTML += `<div><span style="color: #888;">[${new Date().toLocaleTimeString()}]</span> ${msg}</div>`;
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearLog() { document.getElementById("console").innerHTML = ""; }
+    function updateProgress(p) { document.getElementById("progress-bar").style.width = p + "%"; }
+
+    async function startBatchInjection() {
+        const shell = document.getElementById("shell-video-input").value;
+        const temp = document.getElementById("temp-dir-input").value;
+        const output = document.getElementById("output-inject-input").value;
+        const includeParent = document.getElementById("chk-include-parent").checked;
+        const list = document.getElementById("batch-inject-input").value.split('\n').filter(l => l.trim());
+
+        if (!shell) { addLog("<span style='color:red;'>Error: No shell video path.</span>"); return; }
+        updateProgress(0);
+        await pywebview.api.process_batch_injection(shell, list, temp, output, includeParent);
+    }
+
+    async function startBatchExtraction() {
+        const output = document.getElementById("output-extract-input").value;
+        const list = document.getElementById("batch-extract-input").value.split('\n').filter(l => l.trim());
+        updateProgress(0);
+        await pywebview.api.process_batch_extraction(list, output);
+    }
+
+    window.onload = changeLanguage;
+
+    // 获取菜单元素
+    const contextMenu = document.getElementById('context-menu');
+    let activeElement = null; // 记录当前右键点击的输入框
+
+    // 1. 监听右键点击事件
+    document.addEventListener('contextmenu', function(e) {
+        // 检查点击的是不是输入框 (input) 或 文本域 (textarea)
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            e.preventDefault(); // 阻止浏览器默认菜单
+            activeElement = e.target; // 记录当前操作的对象
+
+            // 设置菜单位置并显示
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+        } else {
+            // 如果点击的是空白处，隐藏自定义菜单
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // 2. 点击页面其他地方时隐藏菜单
+    document.addEventListener('click', function() {
+        contextMenu.style.display = 'none';
+    });
+
+    // 3. 菜单功能实现
+    async function menuAction(action) {
+        if (!activeElement) return;
+
+        activeElement.focus(); // 先聚焦到输入框
+
+        try {
+            if (action === 'cut') {
+                document.execCommand('cut');
+            } else if (action === 'copy') {
+                document.execCommand('copy');
+            } else if (action === 'selectAll') {
+                activeElement.select();
+            } else if (action === 'paste') {
+                // 粘贴功能在部分 WebView 环境下有安全限制
+                // 优先尝试现代 API，如果失败则提示用户使用快捷键
+                try {
+                    const text = await navigator.clipboard.readText();
+                    // 在光标位置插入文字
+                    const start = activeElement.selectionStart;
+                    const end = activeElement.selectionEnd;
+                    activeElement.value = activeElement.value.substring(0, start) + text + activeElement.value.substring(end);
+                    // 移动光标到新插入文字的后面
+                    activeElement.setSelectionRange(start + text.length, start + text.length);
+                } catch (err) {
+                    // 如果系统禁用了 JS 读取剪贴板权限，尝试 execCommand
+                    if(!document.execCommand('paste')) {
+                        alert("请使用 Ctrl+V 进行粘贴 (由于安全限制，点击菜单无效)");
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("操作失败:", err);
+        }
+
+        contextMenu.style.display = 'none'; // 执行完后关闭菜单
+}
+</script>
+</body>
+</html>
