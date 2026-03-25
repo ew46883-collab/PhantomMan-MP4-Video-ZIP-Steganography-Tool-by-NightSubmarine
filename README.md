@@ -1,6 +1,6 @@
 # PhantomMan-Steganography-Tool-Hide-ZIP-Files-in-MP4-Videos-by-NightSubmarine
 A tool that enables video steganography by packaging files into ZIP archives and embedding them within a hide box in MP4 shell files.Compatible with Bandizip and WinRAR. Written in Python and HTML/JavaScript.  
-**Inspired by SteganographierGUI https://github.com/cenglin123/SteganographierGUI**  
+**Inspired by cenglin123's SteganographierGUI https://github.com/cenglin123/SteganographierGUI**  
 Developed with the assistance of Gemini. The front-end GUI was written by Gemini.  
 
 https://www.virustotal.com/gui/file/a48ef8dec8c594fb4b87bf7aeec37cd1c13b356d24d26432e158996912869ead?nocache=1  
