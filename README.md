@@ -3,7 +3,7 @@ A tool that enables video steganography by packaging files into ZIP archives and
 **Inspired by SteganographierGUI https://github.com/cenglin123/SteganographierGUI**  
 Developed with the assistance of Gemini. The front-end GUI was written by Gemini.  
 
-https://www.virustotal.com/gui/file/2bffaac3a3ce17851e03f5d5763ce755aa2f695476e19b2e272b028f32c9c0ac/detection
+https://www.virustotal.com/gui/file/a48ef8dec8c594fb4b87bf7aeec37cd1c13b356d24d26432e158996912869ead?nocache=1  
 
 <h2>How to Use</h2>
 
