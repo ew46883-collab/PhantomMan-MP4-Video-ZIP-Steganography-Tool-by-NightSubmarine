@@ -3,7 +3,7 @@
 前端gui由Gemini生成，python后端逻辑由我编写，并由Gemini整理。  
 **受到cenglin123的SteganographierGUI软件启发开发 https://github.com/cenglin123/SteganographierGUI**  
 
-https://www.virustotal.com/gui/file/2bffaac3a3ce17851e03f5d5763ce755aa2f695476e19b2e272b028f32c9c0ac/detection
+杀毒扫描 https://www.virustotal.com/gui/file/a48ef8dec8c594fb4b87bf7aeec37cd1c13b356d24d26432e158996912869ead?nocache=1
 
 <h2>How to Use</h2>
 
